@@ -1,6 +1,8 @@
 import sys
 import threading
 from io import StringIO
+import __main__
+from pathlib import Path
 from .firebase_utils import initialize_firebase, send_to_firebase, create_firebase_stream, get_valid_credentials_path
 
 class Capture:
@@ -12,7 +14,7 @@ class Capture:
 		self.stream = None
 
 	def __enter__(self):
-		self.stream = create_firebase_stream(self.db, self.firebase_key_path)
+		self.stream = create_firebase_stream(self.db, Path(__main__.__file__).name)
 		sys.stdout = self
 		return self
 

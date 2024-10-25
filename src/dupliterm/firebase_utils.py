@@ -1,9 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 from pathlib import Path
-import json
 import shutil
-import os
 
 DEFAULT_CREDENTIALS_PATH = Path.home() / '.console_capture' / 'service_account.json'
 

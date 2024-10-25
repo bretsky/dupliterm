@@ -1,2 +1,2 @@
-from .capture import Capture, capture
+from .capture import Capture
 

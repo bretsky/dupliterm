@@ -34,7 +34,7 @@ def initialize_firebase(key_path):
     return firestore.client()
 
 def send_to_firebase(db, stream_id, text):
-    db.collection('console_output').doc(stream_id).collection('lines').add({
+    db.collection('console_output').document(stream_id).collection('lines').add({
         'timestamp': firestore.SERVER_TIMESTAMP,
         'output': text
     })

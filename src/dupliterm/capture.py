@@ -13,6 +13,7 @@ class Capture:
 		self.firebase_key_path = firebase_key_path or get_valid_credentials_path()
 		self.db = initialize_firebase(self.firebase_key_path)
 		self.stream = None
+		self.index = 0
 
 	def __enter__(self):
 		self.stream = create_firebase_stream(self.db, Path(__main__.__file__).name)
@@ -26,13 +27,15 @@ class Capture:
 		self.stream = None
 
 	def write(self, text):
+		
 		if sys._getframe(1).f_code.co_name == 'write' and sys._getframe(2).f_code.co_filename == '<stderr>':
 			self.original_stderr.write(text)
 		else:
 			self.original_stdout.write(text)
 		self.captured_output.write(text)
 		if self.stream is not None:
-			threading.Thread(target=send_to_firebase, args=(self.db, self.stream, text)).start()
+			threading.Thread(target=send_to_firebase, args=(self.db, self.stream, text, self.index)).start()
+		self.index += 1
 
 	def flush(self):
 		self.original_stdout.flush()

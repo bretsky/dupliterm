@@ -33,10 +33,11 @@ def initialize_firebase(key_path):
         firebase_admin.initialize_app(cred)
     return firestore.client()
 
-def send_to_firebase(db, stream_id, text):
+def send_to_firebase(db, stream_id, text, index):
     db.collection('console_output').document(stream_id).collection('lines').add({
         'timestamp': firestore.SERVER_TIMESTAMP,
-        'output': text
+        'output': text,
+        'index': index
     })
 
 def create_firebase_stream(db, title):

@@ -8,7 +8,7 @@ def read_requirements():
 
 setup(
     name="dupliterm",
-    version="0.1.5",
+    version="0.1.6",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     install_requires=read_requirements()

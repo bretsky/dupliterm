@@ -36,12 +36,15 @@ def initialize_firebase(key_path):
 
 def send_to_firebase(db, stream_id, lines, index, lock):
     with lock:
-        db.collection('console_output').document(stream_id).collection('lines').add({
-            'timestamp': datetime.datetime.now(),
-            'output': [{"timestamp": line[0], "line": line[1]} for line in lines],
-            'index': index
-        })
-        lines.clear()
+        try:
+            db.collection('console_output').document(stream_id).collection('lines').add({
+                'timestamp': datetime.datetime.now(),
+                'output': [{"timestamp": line[0], "line": line[1]} for line in lines],
+                'index': index
+            })
+            lines.clear()
+        except Exception as e:
+            pass
 
 def create_firebase_stream(db, title):
     try:

@@ -2,6 +2,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from pathlib import Path
 import shutil
+import datetime
 
 DEFAULT_CREDENTIALS_PATH = Path.home() / '.console_capture' / 'service_account.json'
 
@@ -33,16 +34,22 @@ def initialize_firebase(key_path):
         firebase_admin.initialize_app(cred)
     return firestore.client()
 
-def send_to_firebase(db, stream_id, text, index):
-    db.collection('console_output').document(stream_id).collection('lines').add({
-        'timestamp': firestore.SERVER_TIMESTAMP,
-        'output': text,
-        'index': index
-    })
+def send_to_firebase(db, stream_id, lines, index, lock):
+    with lock:
+        db.collection('console_output').document(stream_id).collection('lines').add({
+            'timestamp': datetime.datetime.now(),
+            'output': [{"timestamp": line[0], "line": line[1]} for line in lines],
+            'index': index
+        })
+        lines.clear()
 
 def create_firebase_stream(db, title):
-    _, doc_ref = db.collection('console_output').add({
-        'title': title,
-        'timestamp': firestore.SERVER_TIMESTAMP
-    })
-    return doc_ref.id
+    try:
+        _, doc_ref = db.collection('console_output').add({
+            'title': title,
+            'timestamp': datetime.datetime.now()
+        })
+        return doc_ref.id
+    except Exception as e:
+        print(f"Error creating Firebase stream: {e}")
+        return None

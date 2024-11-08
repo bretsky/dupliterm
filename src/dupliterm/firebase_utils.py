@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from pathlib import Path
 import shutil
-import datetime
+from datetime import datetime, timezone
 
 DEFAULT_CREDENTIALS_PATH = Path.home() / '.console_capture' / 'service_account.json'
 
@@ -38,19 +38,19 @@ def send_to_firebase(db, stream_id, lines, index, lock):
     with lock:
         try:
             db.collection('console_output').document(stream_id).collection('lines').add({
-                'timestamp': datetime.datetime.now(),
+                'timestamp': datetime.now(timezone.utc),
                 'output': [{"timestamp": line[0], "line": line[1]} for line in lines],
                 'index': index
             })
             lines.clear()
         except Exception as e:
-            pass
+            return None
 
 def create_firebase_stream(db, title):
     try:
         _, doc_ref = db.collection('console_output').add({
             'title': title,
-            'timestamp': datetime.datetime.now()
+            'timestamp': datetime.now(timezone.utc)
         })
         return doc_ref.id
     except Exception as e:
